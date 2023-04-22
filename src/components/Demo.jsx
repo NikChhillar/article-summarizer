@@ -3,8 +3,21 @@ import { useState } from "react";
 import { copy, linkIcon, loader, tick } from "../assets";
 
 const Demo = () => {
-  const [article, setArticle] = useState();
+  //
+  const [article, setArticle] = useState({
+    url: "",
+    summary: "",
+  });
+
+  //
+  const handleSubmit = async (e) => {
+    alert("submitted" + e);
+  };
+
+  //
   const [copied, setCopied] = useState();
+
+  //
   useEffect(() => {}, []);
 
   return (
@@ -12,7 +25,7 @@ const Demo = () => {
       <div className="flex flex-col w-full gap-2">
         <form
           className="relative flex justify-center items-center"
-          onSubmit={() => {}}
+          onSubmit={handleSubmit}
         >
           <img
             src={linkIcon}
@@ -21,9 +34,9 @@ const Demo = () => {
           />
           <input
             type="url"
-            placeholder="Enter a Url here"
-            value={""}
-            onChange={() => {}}
+            placeholder="Enter URL here"
+            value={article.url}
+            onChange={(e) => setArticle({ ...article, url: e.target.value })}
             required
             className="url_input peer"
           />
@@ -34,7 +47,9 @@ const Demo = () => {
             <p>↵</p>
           </button>
         </form>
+        <div className="flex flex-col gap-1 max-h-60 overflow-y-auto"></div>
       </div>
+      <div className="my-10 max-w-full flex justify-center items-center"></div>
     </section>
   );
 };
