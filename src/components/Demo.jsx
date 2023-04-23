@@ -45,6 +45,11 @@ const Demo = () => {
   };
 
   //
+  const handleCopy = (copy) => {
+    setCopied(copy);
+    navigator.clipboard.writeText(copy);
+    setTimeout(() => setCopied(false), 3000);
+  };
 
   //
 
@@ -82,7 +87,7 @@ const Demo = () => {
               onClick={() => setArticle(itm)}
               className="link_card"
             >
-              <div className="copy_btn">
+              <div className="copy_btn" onClick={() => handleCopy(itm.url)}>
                 <img
                   src={copied === itm.url ? tick : copy}
                   alt={copied === itm.url ? "tick_icon" : "copy_icon"}
@@ -114,7 +119,7 @@ const Demo = () => {
                 Article <span className="blue_gradient">Summary</span>
               </h2>
               <div className="summary_box">
-                <p className="font-inter font-medium text-sm text-gray-700">
+                <p className="font-inter font-medium text-sm text-gray-700 ">
                   {article.summary}
                 </p>
               </div>
