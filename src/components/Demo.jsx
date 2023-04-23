@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useState } from "react";
 import { copy, linkIcon, loader, tick } from "../assets";
+import { useLazyGetSummaryQuery } from "../services/article";
 
 const Demo = () => {
   //
@@ -9,16 +10,43 @@ const Demo = () => {
     summary: "",
   });
 
+  const [allArticles, setAllArticles] = useState([]);
+
+  const [copied, setCopied] = useState("");
+  //
+  const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery();
+
+  //
+  useEffect(() => {
+    const articlesFromLS = JSON.parse(localStorage.getItem("articles"));
+
+    if (articlesFromLS) {
+      setAllArticles(articlesFromLS);
+    }
+  }, []);
+
   //
   const handleSubmit = async (e) => {
-    alert("submitted" + e);
+    e.preventDefault();
+    // alert("submitted" + e);
+    const { data } = await getSummary({ articleUrl: article.url });
+
+    if (data?.summary) {
+      const newArticle = { ...article, summary: data.summary };
+
+      const updatedAllArticles = [newArticle, ...allArticles];
+
+      setArticle(newArticle);
+      setAllArticles(updatedAllArticles);
+      console.log(newArticle);
+
+      localStorage.setItem("articles", JSON.stringify(updatedAllArticles));
+    }
   };
 
   //
-  const [copied, setCopied] = useState();
 
   //
-  useEffect(() => {}, []);
 
   return (
     <section className="mt-16 w-full max-w-xl">
@@ -47,9 +75,53 @@ const Demo = () => {
             <p>↵</p>
           </button>
         </form>
-        <div className="flex flex-col gap-1 max-h-60 overflow-y-auto"></div>
+        <div className="flex flex-col gap-1 max-h-60 overflow-y-auto">
+          {allArticles.map((itm, idx) => (
+            <div
+              key={`link-${idx}`}
+              onClick={() => setArticle(itm)}
+              className="link_card"
+            >
+              <div className="copy_btn">
+                <img
+                  src={copied === itm.url ? tick : copy}
+                  alt={copied === itm.url ? "tick_icon" : "copy_icon"}
+                  className="w-[40%] h-[40%] object-contain"
+                />
+              </div>
+              <p className="flex-1 font-satoshi text-blue-700 font-medium text-sm truncate">
+                {itm.url}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="my-10 max-w-full flex justify-center items-center"></div>
+      <div className="my-10 max-w-full flex justify-center items-center">
+        {isFetching ? (
+          <img src={loader} alt="loader" className="w-20 h-20 object-contain" />
+        ) : error ? (
+          <p className="font-inter font-bold text-black text-center">
+            Something went wrong..... Unable to get summary....
+            <br />
+            <span className="font-satoshi font-normal text-gray-700">
+              {error?.data?.error}
+            </span>
+          </p>
+        ) : (
+          article.summary && (
+            <div className="flex flex-col gap-3">
+              <h2 className="font-satoshi font-bold text-gray-600 text-xl">
+                Article <span className="blue_gradient">Summary</span>
+              </h2>
+              <div className="summary_box">
+                <p className="font-inter font-medium text-sm text-gray-700">
+                  {article.summary}
+                </p>
+              </div>
+            </div>
+          )
+        )}
+      </div>
     </section>
   );
 };
